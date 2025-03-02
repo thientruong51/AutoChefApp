@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Alert, TextInput } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { CartContext } from "../context/CartContext";
+import * as Notifications from "expo-notifications"; 
 
 const CartScreen = () => {
   const { cartItems, removeFromCart, setCartItems } = useContext(CartContext);
@@ -24,18 +25,17 @@ const CartScreen = () => {
       Alert.alert("Giỏ hàng trống", "Vui lòng thêm món ăn trước khi thanh toán.");
       return;
     }
-
+  
     try {
-      // Tạo dữ liệu đơn hàng
       const orderData = {
-        recipeId: cartItems[0].recipeId,  // Ví dụ, lấy món đầu tiên
-        locationId: 1, 
-        robotId: 1, 
+        recipeId: cartItems[0].recipeId,
+        locationId: 1,
+        robotId: 1,
         orderedTime: new Date().toISOString(),
         status: "pending",
-        instruction: orderInstruction, // Thêm hướng dẫn đơn hàng
+        instruction: orderInstruction,
       };
-
+  
       const response = await fetch("https://autochefsystem.azurewebsites.net/api/Order/create", {
         method: "POST",
         headers: {
@@ -44,19 +44,28 @@ const CartScreen = () => {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       const result = await response.json();
       if (response.ok) {
-        // Xóa giỏ hàng sau khi thanh toán thành công
-        setCartItems([]);  // Xóa toàn bộ giỏ hàng
-
-        Alert.alert("Đặt hàng thành công", "Đơn hàng của bạn đã được gửi.");
+        setCartItems([]);
+  
+        // ✅ Gửi thông báo đẩy sau khi đặt hàng thành công
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "✅ Đặt hàng thành công!",
+            body: "Đơn hàng của bạn đang được xử lý.",
+            sound: "default",
+          },
+          trigger: null, // Gửi ngay lập tức
+        });
+  
+        Alert.alert("🎉 Đặt hàng thành công!", "Đơn hàng của bạn đã được gửi.");
       } else {
-        Alert.alert("Lỗi đặt hàng", result.message || "Có lỗi xảy ra, vui lòng thử lại.");
+        Alert.alert("⚠️ Lỗi đặt hàng", result.message || "Có lỗi xảy ra, vui lòng thử lại.");
       }
     } catch (error) {
       console.error("Lỗi khi đặt hàng:", error);
-      Alert.alert("Lỗi kết nối", "Không thể kết nối đến máy chủ, vui lòng thử lại.");
+      Alert.alert("❌ Lỗi kết nối", "Không thể kết nối đến máy chủ, vui lòng thử lại.");
     }
   };
 
