@@ -44,9 +44,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+   
   },
   iconContainer: {
     padding: 10,
+    
   },
 });
 

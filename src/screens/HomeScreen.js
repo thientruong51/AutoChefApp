@@ -62,7 +62,8 @@ const HomeScreen = ({ navigation }) => {
               style={styles.menuItem} onPress={() => navigation.navigate('Details', { recipeId: item.recipeId })}
             >
 
-              <Image source={require('../../assets/pho.png')} style={styles.menuImage} />
+              <Image source={{ uri: item.imageUrl }} style={styles.menuImage} />
+
               <View style={styles.menuInfo}>
                 <Text style={styles.menuName}>{item.recipeName}</Text>
                 <Text style={styles.menuPrice}>{item.ingredients}</Text>
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
 
   // Danh sách món ăn
   menuItem: { flexDirection: 'row', backgroundColor: '#fff', padding: 16, borderRadius: 8, marginBottom: 16, alignItems: 'center' },
-  menuImage: { width: 80, height: 80, borderRadius: 8, marginRight: 16 },
+  menuImage: { width: 85, height: 70, borderRadius: 8, marginRight: 16 },
   menuInfo: { flex: 1 },
   menuName: { fontSize: 16, fontWeight: 'bold' },
   menuPrice: { fontSize: 14, color: '#888', marginTop: 4 },
