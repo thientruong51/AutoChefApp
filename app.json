@@ -12,6 +12,8 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "entryPoint": "index.js",
+
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.thientruong51.AutoChefApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
