@@ -51,11 +51,11 @@ const DetailOrderScreen = () => {
                   "Accept": "*/*",
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ orderId, status: "cancelled" }),
+                body: JSON.stringify({ orderId, status: "Cancelled" }),
               });
   
               if (response.ok) {
-                setOrder({ ...order, status: "cancelled" });
+                setOrder({ ...order, status: "Cancelled" });
   
                 await Notifications.scheduleNotificationAsync({
                   content: {
@@ -100,11 +100,11 @@ const DetailOrderScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Order Details</Text>
-      <Text style={styles.label}>Order ID: {order.id}</Text>
-      <Text style={styles.label}>Recipe ID: {order.recipeId}</Text>
+      <Text style={styles.label}>Order ID: {order.orderId}</Text>
+      <Text style={styles.label}>Dish Name: {order.recipeName}</Text>
       <Text style={styles.label}>Status: {order.status}</Text>
       <Text style={styles.label}>Ordered Time: {new Date(order.orderedTime).toLocaleString()}</Text>
-      <Text style={styles.label}>Instruction: {order.instruction || "None"}</Text>
+      <Text style={styles.label}>Completed Time: {order.completedTime ? new Date(order.completedTime).toLocaleString() : ""}</Text>
 
       {order.status === "pending" && (
         <TouchableOpacity style={styles.cancelButton} onPress={handleCancelOrder}>

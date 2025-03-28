@@ -6,7 +6,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CartProvider } from "./src/context/CartContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 
-// Cấu hình channel cho Android
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -53,7 +52,6 @@ export default function App() {
     registerForPushNotificationsAsync();
 
     const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
-      console.log("Notification received:", notification);
       if (notification?.request?.content?.body) {
         Alert.alert("Thông báo", notification.request.content.body);
       }

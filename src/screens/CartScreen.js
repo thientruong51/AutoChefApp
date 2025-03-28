@@ -1,11 +1,21 @@
 import React, { useContext, useState } from "react";
-import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Alert, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Alert,
+  TextInput,
+  ScrollView,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { CartContext } from "../context/CartContext";
 import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
 import Footer from "../components/Footer";
-import { API_BASE_URL } from "@env"; 
+import { API_BASE_URL } from "@env";
 
 const CartScreen = () => {
   const { cartItems, removeFromCart, setCartItems } = useContext(CartContext);
@@ -23,15 +33,12 @@ const CartScreen = () => {
     ]);
   };
 
- 
-  
-  
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
       Alert.alert("Cart is empty", "Please add dishes.");
       return;
     }
-  
+
     try {
       const orderData = {
         recipeId: cartItems[0].recipeId,
@@ -41,21 +48,19 @@ const CartScreen = () => {
         status: "pending",
         instruction: orderInstruction,
       };
-  
-  
+
       const response = await fetch(`${API_BASE_URL}/Order/create-and-send-to-queue`, {
         method: "POST",
         headers: {
-          "Accept": "*/*",
+          Accept: "*/*",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
       });
-  
-  
+
       if (response.ok) {
-        setCartItems([]); 
-  
+        setCartItems([]);
+
         await Notifications.scheduleNotificationAsync({
           content: {
             title: "Order successful!",
@@ -64,71 +69,184 @@ const CartScreen = () => {
           },
           trigger: null,
         });
-  
-        
-          navigation.replace("MyOrders");
-       
+
+        navigation.replace("MyOrders");
       } else {
         const result = await response.json();
-        Alert.alert("⚠️ Order error", result.message || "An error occurred, please try again.");
+        Alert.alert(
+          "⚠️ Order error",
+          result.message || "An error occurred, please try again."
+        );
       }
     } catch (error) {
       Alert.alert("❌ Connection error", "Unable to connect to the server, please try again.");
     }
   };
-  
-  
+
+  const renderCartItem = ({ item }) => (
+    <View style={styles.cartItem}>
+      <TouchableOpacity
+        onPress={() => handleRemoveItem(item.recipeId)}
+        style={styles.deleteButton}
+      >
+        <Icon name="times-circle" size={24} color="red" />
+      </TouchableOpacity>
+      <Image source={{ uri: item.imageUrl }} style={styles.image} />
+      <View style={styles.itemContent}>
+        <Text style={styles.itemName}>{item.recipeName}</Text>
+      </View>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>{cartItems.length} items in the cart</Text>
+    <View style={styles.outerContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.cartCountText}>
+          {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in cart
+        </Text>
 
-      <FlatList
-        data={cartItems}
-        keyExtractor={(item) => item.recipeId.toString()}
-        renderItem={({ item }) => (
-          <View>
-            <View style={styles.cartItem}>
-              <TouchableOpacity onPress={() => handleRemoveItem(item.recipeId)} style={styles.deleteButton}>
-                <Icon name="times-circle" size={24} color="red" />
-              </TouchableOpacity>
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
-              <View style={styles.itemContent}>
-                <Text style={styles.itemName}>{item.recipeName}</Text>
-              </View>
-            </View>
-            <Text style={styles.label}>Note to Restaurant</Text>
+        <FlatList
+          data={cartItems}
+          keyExtractor={(item) => item.recipeId.toString()}
+          renderItem={renderCartItem}
+          scrollEnabled={false} 
+        />
+
+        {cartItems.length > 0 && (
+          <>
+            <Text style={styles.label}>Order Instruction</Text>
             <TextInput
               style={styles.input}
               placeholder="Add your request..."
               value={orderInstruction}
               onChangeText={setOrderInstruction}
             />
-          </View>
+          </>
         )}
-      />
 
-      <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout} disabled={cartItems.length === 0}>
-        <Text style={styles.checkoutText}>Place Order</Text>
-      </TouchableOpacity>
 
+      </ScrollView>
+
+      <View style={styles.bottomButtonsContainer}>
+        <TouchableOpacity
+          style={[styles.checkoutButton, cartItems.length === 0 && styles.disabledButton]}
+          onPress={handleCheckout}
+          disabled={cartItems.length === 0}
+        >
+          <Text style={styles.checkoutText}>Checkout</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.backMenuButton} onPress={() => navigation.navigate("Home")}>
+          <Text style={styles.backMenuText}>Back to Menu</Text>
+        </TouchableOpacity>
+      </View>
       <Footer />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F5F5F5" },
-  header: { fontSize: 22, fontWeight: "bold", color: "#388E3C", marginBottom: 10 },
-  cartItem: { flexDirection: "row", backgroundColor: "#fff", padding: 10, borderRadius: 10, marginBottom: 10, alignItems: "center" },
-  image: { width: 150, height: 120 },
-  itemContent: { flex: 1, marginLeft: 10, justifyContent: "space-between" },
-  itemName: { fontSize: 22, fontWeight: "bold", marginLeft: 10, color: "#4BB842" },
-  label: { fontSize: 18, marginTop: 10 },
-  input: { fontSize: 16, backgroundColor: "#fff", padding: 10, borderRadius: 30, marginVertical: 10, height: 100, borderWidth: 1 },
-  checkoutButton: { backgroundColor: "#4CAF50", padding: 15, borderRadius: 30, alignItems: "center" },
-  checkoutText: { fontSize: 18, color: "#fff", fontWeight: "bold" },
-  deleteButton: { position: "absolute", top: 5, right: 5, zIndex: 1 },
-});
-
 export default CartScreen;
+
+const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+    marginTop:40
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 160, 
+  },
+
+  cartCountText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#4E973C",
+    marginBottom: 16,
+  },
+
+  cartItem: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: "center",
+    position: "relative",
+  },
+  deleteButton: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    zIndex: 1,
+  },
+  image: {
+    width: 90,
+    height: 70,
+    borderRadius: 10,
+  },
+  itemContent: {
+    flex: 1,
+    marginLeft: 10,
+    justifyContent: "center",
+  },
+  itemName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#4BB842",
+  },
+
+  // Order instruction
+  label: {
+    fontSize: 16,
+    marginTop: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  input: {
+    fontSize: 16,
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 10,
+    height: 80,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+
+
+
+  bottomButtonsContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 90,    
+    alignItems: "center",
+  },
+
+  checkoutButton: {
+    backgroundColor: "#4CAF50",
+    paddingHorizontal: 40,
+    paddingVertical: 14,
+    borderRadius: 30,
+    marginBottom: 10,
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
+  },
+  checkoutText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+
+  backMenuButton: {
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  backMenuText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#4E973C",
+  },
+});

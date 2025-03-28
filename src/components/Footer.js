@@ -1,11 +1,13 @@
-import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useContext } from "react";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { CartContext } from "../context/CartContext";
 
 const Footer = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { cartItems } = useContext(CartContext);
 
   const getIconColor = (screen) => (route.name === screen ? "#4CAF50" : "#8C8C8C");
 
@@ -16,7 +18,14 @@ const Footer = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.navigate("Cart")}>
-        <Icon name="shopping-cart" size={22} color={getIconColor("Cart")} />
+        <View>
+          <Icon name="shopping-cart" size={22} color={getIconColor("Cart")} />
+          {cartItems.length > 0 && (
+            <View style={styles.badgeContainer}>
+              <Text style={styles.badgeText}>{cartItems.length}</Text>
+            </View>
+          )}
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.iconContainer} onPress={() => navigation.navigate("MyOrders")}>
@@ -43,6 +52,23 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     padding: 10,
+  },
+  badgeContainer: {
+    position: "absolute",
+    top: -10,
+    right: -15,
+    backgroundColor: "#4BB842",
+    borderRadius: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    minWidth: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });
 
