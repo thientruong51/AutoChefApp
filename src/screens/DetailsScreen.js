@@ -116,13 +116,13 @@ const DetailsScreen = ({ route }) => {
             <Text style={styles.addOnsTitle}>Add Ons</Text>
             <View style={styles.addOnsContainer}>
               <TouchableOpacity style={styles.addOnItem}>
-                <Image source={require("../../assets/bonam.png")} style={styles.addOnImage} />
-                <Text style={styles.addOnText}>Beef Encrusted</Text>
+                <Image source={require("../../assets/toi.png")} style={styles.addOnImage} />
+                <Text style={styles.addOnText}>Pickled garlic</Text>
                 <Icon name="plus-circle" size={20} color="#4CAF50" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.addOnItem}>
-                <Image source={require("../../assets/ganbo.png")} style={styles.addOnImage} />
-                <Text style={styles.addOnText}>Beef Tendon</Text>
+                <Image source={require("../../assets/chanh.png")} style={styles.addOnImage} />
+                <Text style={styles.addOnText}>Lemon</Text>
                 <Icon name="plus-circle" size={20} color="#4CAF50" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.addOnItem}>
